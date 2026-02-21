@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  labels:
+    app: analysis-canary
+  name: analysis-canary
+  namespace: analysis-lab
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: analysis-canary
+  template:
+    metadata:
+      labels:
+        app: analysis-canary
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - image: lmacademy/simple-color-app:1.1.0
+        name: simple-color-app
+        env:
+          - name: ERROR_RATE
+            value: '0'
+          - name: APP_COLOR
+            value: red
+  strategy:
+    canary:
+      canaryService: analysis-canary-canary
+      stableService: analysis-canary-stable
+      steps:
+        - setWeight: 20
+        - pause:
+            duration: 10s
+        - setWeight: 90
+        - pause:
+            duration: 10s
