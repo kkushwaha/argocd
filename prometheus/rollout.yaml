@@ -34,7 +34,13 @@ spec:
       steps:
         - setWeight: 20
         - pause:
-            duration: 10s
-        - setWeight: 90
+            duration: 3m
+        - analysis:
+            templates:
+              - templateName: success-rate
+            args:
+              - name: service-name
+                value: analysis-canary
+        - setWeight: 80
         - pause:
             duration: 10s
